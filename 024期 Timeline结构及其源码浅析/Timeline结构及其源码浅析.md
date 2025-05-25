@@ -19,7 +19,7 @@ Timeline整体结构如下：
 
 Playable系统侧主要是Playable、PlayableOutput、PlayableGraph三部分组成。
 
-![](Timeline和Playable重要组成.png)
+![](image/Timeline和Playable重要组成.png)
 
 因为后面会频繁出现包含"Playable"的单词，所以需要辨析强调下
 - Playable系统：指底层c++端关于Playable的所有功能，包含playable/playableout节点创建与连接、playableGraph的构建运行销毁等。
