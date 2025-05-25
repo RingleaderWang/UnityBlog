@@ -11,7 +11,7 @@ Timeline的两个主要作用：
 
 Timeline整体结构如下：
 
-![](Timeline整体结构.png)
+![](./image/Timeline整体结构.png)
 
 包括底层的Playable系统，其在c++端，封闭黑盒，暴露部分API给c#端使用，Timeline就是利用这些API实现的功能。
 
