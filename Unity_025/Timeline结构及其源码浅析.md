@@ -13,7 +13,7 @@ Timeline的两个主要作用：
 
 Timeline整体结构如下：
 
-![](image/Timeline整体结构.png)
+![](image/Timeline%20overall%20structure.png)
 
 包括底层的Playable系统，其在c++端，封闭黑盒，暴露部分API给c#端使用，Timeline就是利用这些API实现的功能。
 
@@ -21,7 +21,7 @@ Timeline整体结构如下：
 
 Playable系统侧主要是`Playable`、`PlayableOutput`、`PlayableGraph`三部分组成。
 
-![](image/Timeline和Playable重要组成.png)
+![](image/Timeline%20and%20Playable%20important%20components.png)
 
 因为后面会频繁出现包含"`Playable`"的单词，所以需要辨析强调下
 - `Playable系统`：指底层c++端关于Playable的所有功能，包含playable/playableout节点创建与连接、playableGraph的构建运行销毁等。
@@ -54,21 +54,21 @@ Playable系统侧主要是`Playable`、`PlayableOutput`、`PlayableGraph`三部�
 
 重点结构如下图所示：
 
-![](image/Timeline%20结构全解.png)
+![](image/Timeline%20Structure%20Comprehensive%20Explanation.png)
 
 Timeline的完整流程：
 
-![](image/Timeline完整流程.png)
+![](image/Full%20Timeline%20Process.png)
 
 接下来会详细分析整个系统。
 # Timeline 操作简介
 
 1. 打开timeline窗口：Window>Sequencing>Timeline
-   ![](image/打开Timeline窗口.png) 
+   ![](image/open%20Timeline%20window.png) 
 2. 创建Timeline：直接选择gameobject 点击Timeline窗口的Create创建，或者Project窗口右键Create>Timeline进行创建。（timeline文件扩展名为 playable，是静态资产）  
-   ![](image/创建Timeline.png)
+   ![](image/create%20Timeline.png)
 3. Timeline窗口create timeline，对象会自动创建PlayableDirector组件并绑定timeline。手动新建的话可以直接拖动timeline资产到对象，也能自动生成PlayableDirector组件。  
-   ![](image/Playable%20Director窗口.png)
+   ![](image/Playable%20Director%20window.png)
 4. `PlayableDirector`用于为timeline创建对应的playable graph，可以激活`play On Awake`，那样组件awake后就能play（注意PlayableDirector组件awake远早于用户脚本awake，无法在用户脚本awake方法中控制PlayableDirector的`play on awake`参数）
 	- `Bindings`会显示特定轨道所绑定的对象，用于指明当前Track控制的对象。
 	- `Wrap Mode`指明Timeline播放完毕后的行为，none会直接stop timeline所在的graph（就是直接停止timeline），hold的话就是持续播放timeline最后一帧，Loop的话会从头循环播放。
@@ -82,7 +82,7 @@ Timeline的完整流程：
 	- `Control Track`：控制prefab、粒子系统或者子timeline显示或播放的轨道
 	- `Signal Track`：控制帧事件的轨道
 	- `Custom Track`，就是用户自己继承`TrackAsset`、`PlayableAsset`、`PlayableBehaviour`等来实现自定义playable。
-	![](image/Timeline几种轨道.png)
+	![](image/Timeline%20all%20track.png)
 	
 6. 创建好track和playable后就可以用PlayableDirector自动播放或手动Play()播放。
 
@@ -107,9 +107,9 @@ Timeline的完整流程：
 
 在Timeline窗口创建两个Track（Activation Track、Audio Track），并分别添加对应的clip。如下：
 
-![](image/案例_Timeline窗口创建两个Track.png)
+![](image/example_Timeline%20window%20create%20two%20track.png)
 
-![](image/创建Timeline.png)
+![](image/create%20Timeline.png)
 
 这个扩展名为 ".playable"的 timeline 文件，就是所谓的静态资产。
 
@@ -117,19 +117,19 @@ timeline资产文件实例化后就是TimelineAsset类，TimelineAsset下一层�
 
 结构图如下：
 
-![](image/TimelineAsset结构.png)
+![](image/TimelineAsset%20structure.png)
 
 对应的Timeline.playable yaml文件如下图所示：
 
-![](image/Timeline.%20playableyaml文件结构.png)
-![](image/PlayableAsset实例化通过guid找脚本类.png)
+![](image/Timeline%20yaml%20file%20structure.png)
+![](image/PlayableAsset%20Instantiate%20by%20guid.png)
 
 实例化时，会根据这个`yaml`文件解析成 `PlayableAsset`节点链（利用PlayableAsset的`parent`、 `children`参数），**根节点（Root PlayableAsset）是TimelineAsset**，下一层是`Root Track`，对于`Group track`或者`AnimationTrack`允许其下还有`SubTrack`，每个Track都可以包含数个`PlayableAsset`。
 - `root PlayableAsset`：就是TimelineAsset，是所有`root track`的父级节点。
 - `root track`：就是TimelineAsset的直接子track，从timeline窗口看就是最外层track。
 - `output track`： 会生成`PlayableOutput`的track。除 GroupTrack、subGroupTrack、override track外的所有track 都是 output track。
 
-![](image/红框为root%20track，黄框为output%20track.png)
+![](image/root%20track%20and%20output%20track.png)
 <center><font size=2 >红框为root track，黄框为output track</font></center>
 
 ## PlayableDirector
@@ -139,17 +139,17 @@ timeline资产文件实例化后就是TimelineAsset类，TimelineAsset下一层�
 - 另一种就是从挂载`PlayableDirector`组件对象点开，那么它的timeline就是可预览播放的，track左侧也会显示`Bindings`。
 
 第二种其实就是PlayableDirector组件做的绑定。
-![](image/Track含Target的Timeline.png)
+![](image/Track%20contain%20Target.png)
 - `PlayableDirector`利用`key-value` 来实现绑定。
 - `key`就是`Track`对象（在`PlayableBinding`中被称作`sourceObject`）.
 - `value` 就是目标对象（在`PlayableOutput`中被称作`target`），如ActivationTrack对应的就是待控制的预制体，AudioSourceTrack对应的就是Audio Source组件 ，AnimationTrack 对应的就是Animator。
 
-![](image/PlayableDirector组件中SceneBindings值.png)
+![](image/SceneBindings%20in%20PlayableDirector.png)
 <center><font size=2 >PlayableDirector组件中SceneBindings值</font></center>
 
 这样，包含PlayableDirector的结构图就变成下图所示：
 
-![](image/包含PlayableDirector的结构图.png)
+![](image/graph%20contain%20PlayableDirector.png)
 <center><font size=2 >包含PlayableDirector的TimelineAsset结构图</font></center>
 
 ## PlayableAsset UML类图
@@ -158,7 +158,7 @@ timeline资产文件实例化后就是TimelineAsset类，TimelineAsset下一层�
 
 **PlayableAsset UML类图**如下图所示：
 
-![](image/PlayableAsset%20类结构图.png)
+![](image/PlayableAsset%20class%20uml.png)
 
 - **TimelineAsset**：最特别的`PlayableAsset`，存储了所有trackAsset，包含一个`CreatePlayable`方法，指导运行时创建`TimelinePlayable`。
 - **ClipPlayableAsset**（蓝色） ：表示实现`ITimelineClipAsset`接口的特殊`PlayableAsset`，具体类有`ActivationPlayableAsset`、`AudioPlayableAsset`、`AnimationPlayableAsset`、`ControlPlayableAsset`。这些PlayableAsset拥有一个`clipCaps`属性，表明这个片段在Timeline窗口拥有的能力，这些能力包含：
@@ -204,17 +204,17 @@ PlayableGraph也可以用`PlayableGraph.GetResolver() as PlayableDirector` 解�
 
 PlayableGraph 和 PlayableDirector UML类图如下：
 
-![](image/PlayableGraph%20UML类图.png)
+![](image/PlayableGraph%20UML%20graph.png)
 
 ### PlayableGraph的结构
 
 对于前面的 timeline 资产：
 
-![](image/案例_Timeline窗口创建两个Track.png)
+![](image/example_Timeline%20window%20create%20two%20track.png)
 
 在运行时形成的Graph结构如下：
 
-![](image/timeline在运行时形成的Graph结构.png)
+![](image/timeline%20Graph%20in%20runtime.png)
 
 **PlayableGraph**的构建过程：
 - **PlayableDirector** `RebuildGraph`触发构建graph动作 
@@ -307,7 +307,7 @@ PlayableGraph 中的 Playable 节点负责 数据的生产、传递与处理，�
 
 Playable是一个多输入多输出的有向节点，拥有speed、time、duration、isDone、PlayState等参数标识自身的运行状态，并对外提供控制自身运行、暂停与销毁的接口。
 
-![](image/Playable内部结构.png)
+![](image/Playable%20inner%20structure.png)
 
 #### 节点属性/方法
 
@@ -333,10 +333,10 @@ bool Connect<U, V>(
 
 允许的结构：
 
-![](image/允许的graph结构.png)
+![](image/valid%20graph%20structure.png)
 
 不允许的结构（三个节点首尾相接）（出现死循环，如果使用graph visulizer，unity会奔溃）
-![](image/不允许的graph结构（三个节点首尾相接）.png)
+![](image/invalid%20graph%20structure.png)
 
 #### 一些特殊的属性/方法
 - `GetScriptInstance()`，指明playable生命周期的回调方法
@@ -393,26 +393,26 @@ private void ValidateTraversalMode2(bool _changeTraversalMode,bool _changeSource
 ```
 
 当前中间Playable的 traversalMode是passthrough，可以看到只有port 0 这条线有数据传输。
-![](image/mode为passthrough数据流向.png)
+![](image/passthrough%20mode%20%20data%20flow.png)
 <center><font size=2 >mode为passthrough数据流向</font></center>
 
 改变PlayableOutput连在port 1 这端，数据又只接受input 1 这个port输入了。
-![](image/mode为passthrough的数据流向（改变sourcePlayable）.png)
+![](image/passthrough%20mode%20%20data%20flow2.png)
 <center><font size=2 >mode为passthrough的数据流向（改变sourcePlayable）</font></center>
 
 而当 MODE 设为 MIX ，input 0 和 input 1 都接收数据。
-![](image/MODE=MIX的数据流向.png)
+![](image/mix%20mode%20%20data%20flow.png)
 <center><font size=2 >MODE=MIX的数据流向</font></center>
 
 通过这个例子，能大概理解 `TraversalMode` 遍历模式到底是什么意思。
 
 不过要注意，按照Passthrough源码注释的本意：
 
-![](image/Passthrough源码注释.png)
+![](image/Passthrough%20source%20code%20comment.png)
 
 应该是`sourceOutputPort`的`PlayableOutput`跟对应input位置的节点进行直通，但实测**sourceOutputPort没起作用**，实际上是由PlayableOutput在graph中的顺序决定，也就是下图中PlayableOutput前面的#0 #1 #2 标号（其实就是PlayableOutput数组的index）。
 
-![](image/实测passthrough直通效果.png)
+![](image/passthrough%20example.png)
 <center><font size=2 >passthrough mode下input port匹配的其实是PlayableOutput数组标号</font></center>
 
 测试代码你可以发现`SetSourcePlayable`的port你设50设100都不影响。
@@ -445,7 +445,7 @@ void ValidateTraversalMode()
 ```
 
 但从Animation计算权重的过程也能看出，SourceOutputPort本意就是playable的output port。但实测中Playableout获取数据时并没有使用这个参数，更没有校验，你设多少都可以（只校验了不能重复绑定，但没校验port是否存在）。
-![](image/从Animation计算权重的过程也能看出，SourceOutputPort本意就是playable的output%20port.png)
+![](image/SourceOutputPort%20meaning.png)
 如果是bug的话，官方可能需要做下面两个步骤进行修复：
 - 每connect一个节点到TimelinePlayable，TimelinePlayable的outputCount加一（这样直通才有意义）
 - 对每个Playableout从根节点TimelinePlayable开始遍历时，严格按照`TimelinePlayable.getInput(PlayableOutput.GetSourceOutputport())`获取绑定的Playable，而不是用`PlaybleGraph`中类似`PlayableOytput[]`数组的`index`来get input playable。（注：Timeline生成的graph中`PlayableOutput.GetSourcePlayable()`得到的就是`TimelinePlayable`）
@@ -454,7 +454,7 @@ void ValidateTraversalMode()
 
 PlayableAsset创建的playable有两种，一种是不带生命周期管理的Playable，另一种是带生命周期管理的（实现IPlayableBehaviour接口）。第二种其实就是Timeline模块中基于ScriptPlayable实现的一种官方自定义playable。
 #### 基础Playable 的 UML 类图
-![](image/基础Playable%20UML类图.png)
+![](image/Basic%20Playable%20UML%20Class%20Diagram.png)
 
 注意这些Playable都是Struct，没有像class一样的继承能力，但这些子Playable都重写了隐/显式操作符，所以功能上等价于存在继承关系。比如下面AudioClipPlayable例子：
 
@@ -488,7 +488,7 @@ AudioClipPlayable audioClipPlayable = (AudioClipPlayable)playable;
 下面就详细介绍这些所谓的“**官方自定义Playable**”。
 #### PlayableBehaviour 的 UML 类图
 
-![](PlayableBehaviour%20UML类图.jpg)
+![](image/PlayableBehaviour%20UML%20Class%20Diagram.jpg)
 
 继承`PlayableBehaviour`的类分为几种：
 - `TimelinePlayable`：作为graph中所有其他playable的根父节点，控制所有clip的激活与否。
@@ -505,7 +505,7 @@ AudioClipPlayable audioClipPlayable = (AudioClipPlayable)playable;
 
 比如我的技能系统用的SkillPlayableAsset，有个参数标注这个clip用于技能的哪个阶段，就需要SkiIlPhase这么一个参数，后面behaviour回调触发时就能根据这个参数针对性做处理。
 
-![](image/Track或PlayableAsset自身需要拥有特殊属性.png)
+![](image/TrackAsset%20need%20specific%20attributes.png)
 <center><font size=2 >Track或PlayableAsset自身需要拥有特殊属性的场景</font></center>
 
 这就是behaviour 与 playableAsset的数据交互问题。
@@ -551,7 +551,7 @@ template
 
 这样你在XXPlayableAsset Inspector就能展示XXPlayableBehaviour的两个参数，param1和param2，但不够好看，外面会套一层参数名，像下面这样：
 
-![](image/属性外面套了一层参数名.png)
+![](image/attribute%20%20wrapped%20%20outter%20parameter.png)
 
 解决方法有两个，一种是类似AudioTrack的处理方法，写个AudioTrackInspector手动提取出各个参数。另一个参考官方案例的自定义Attribute：NoFoldOut。
 
@@ -610,7 +610,7 @@ public class XXPlayableAsset : PlayableAsset
 	}
 }
 ```
-![](image/直接展示子属性效果.png)
+![](image/Directly%20display%20subattributes.png)
 #### 使用 default (T) 的 ScriptPlayable 创建
 
 如果你使用 default (T) 创建，意味着你的这些特殊属性都变成默认值。
@@ -663,12 +663,12 @@ public class XXPlayableAsset : PlayableAsset
 
 注意使用时，一定要从点击挂载PlayableDirector的对象对应的timeline窗口操作。  
 
-![](image/ExposedReference示例.png)
+![](image/ExposedReference%20example.png)
 <center><font size=2 >ExposedReference用法</font></center>
 
 运行时可以正常打印，但发现打印的对象position数据有问题，似乎有(0.22, 1.28, -1.66)的偏差，不清楚原因，暂时还是不要用`ExposedReference`。
 
-![](image/使用ExposedReference数据有偏差.png)
+![](image/ExposedReference%20error.png)
 <center><font size=2 >ExposedReference用法有待进一步验证</font></center>
 
 ## PlayableOutput 结构与类
@@ -678,7 +678,7 @@ public class XXPlayableAsset : PlayableAsset
 
 PlayableOutput 的结构相当简单。
 
-![](image/PlayableOutput内部结构.png)
+![](image/PlayableOutput%20Internal%20structure.png)
 - ReferenceObject：对应的TrackAsset
 - SourcePlayable：PlayableOutput连接的Playable，使用扩展方法`PlayableOutput.SetSourcePlayable(Playable value, int port)`连接
 - 注意连接的SourcePlayable和port不能都一样，否则报错`Cannot set multiple PlayableOutputs to the same source playable and output port`
@@ -691,7 +691,7 @@ PlayableOutput 的结构相当简单。
 - 每种PlayableOutput都有个create方法来创建一个具体的PlayableOutput。
 - 除了ScriptPlayableOutput外，都有个target参数用于指明track binding的target对象。
 
-![](image/PlayableOutputUML类图.png)
+![](image/PlayableOutput%20UML%20diagram.png)
 # 运行时Timeline
 
 前文介绍了Timeline编辑态流程，至于运行时，则主要包含三个步骤：
@@ -699,7 +699,7 @@ PlayableOutput 的结构相当简单。
 - graph Build
 - graph Play
 
-![](image/Timeline完整流程.png)
+![](image/Full%20Timeline%20Process.png)
 ## 初始化 PlayableDirector
 
 看Timeline源码最难受的就是这，看不到尾就算了，还看不到头，过程全藏在Unity c++端。
@@ -736,7 +736,7 @@ PlayableOutput 的结构相当简单。
 
 build graph的方法调用链如下（也可以看到一个明显的c++端调用）：
 
-![](image/运行时方法调用链.png)
+![](image/Runtime%20method%20call%20chain.png)
 ### AnimationPlayable的权重处理
 
 Timeline 会利用 AnimationOutputWeightProcessor Evaluate方法处理AnimationMixer 、AnimationLayer和 AnimationPlayableOutput的权重。
@@ -747,7 +747,7 @@ Timeline 会利用 AnimationOutputWeightProcessor Evaluate方法处理AnimationM
 - `layer input0 weight` ：0.56=(0.26+0.14)/(0.26+0.14+0.19+0.13)\*1
 - `AnimationOutput weight` ： 0.72 = 0.26+0.14+0.19+0.13
 
-![](image/AnimationPlayable的权重处理1.png)
+![](image/AnimationPlayable%20weight%20processor1.png)
 
 如果输入权重和≥1，则只对≥1的输入钳值到1，不等比例缩小，且AnimationOutput **weight 钳值为1**.
 
@@ -758,7 +758,7 @@ Timeline 会利用 AnimationOutputWeightProcessor Evaluate方法处理AnimationM
 - `layer input1 weight`  ： 0.5 （0.6+0.9+0.2+0.3>1不缩放，且0.2+0.3<1 不钳值）
 - `AnimationOutput weight`：1（0.6+0.9+0.2+0.3>1 钳值到1）
 
-![](image/AnimationPlayable的权重处理2.png)
+![](image/AnimationPlayable%20weight%20processor2.png)
 
 这么处理的目的按源码注释的说法：”对动画轨道上的权重进行后处理，以正确归一化混合器权重，从而避免混合时出现默认姿势，并确保子轨道、图层以及图层图正确混合。Does a post processing of the weights on an animation track to properly normalize the mixer weights so that blending does not bring default poses and subtracks, layers and layer graphs blend correctly ”
 
@@ -773,7 +773,7 @@ graph play或evaluate后主要两个步骤：
 	3. 执行AnimationOutputWeightProcessor.Evaluate()处理mixer layer和PlayaleOutput 的权重
 2. 后序遍历Playable执行playing态的Playable的ProcessFrame方法。
 
-![](image/graph%20play或evaluate后两个步骤.png)
+![](image/two%20steps%20of%20graph%20play.png)
 <font size=2 >graph play或evaluate后两个步骤</font>
 
 当然这不是终点，数据经过一个个playable处理后，传递到playableOutput，最终交由target处理。
@@ -789,7 +789,7 @@ ScriptPlayable数据处理在ProcessFrame中，可以实现Prefab的enable disab
 
 至于数据传入AnimatorPlayableOutput后怎么处理更是黑盒了，可以看一下下面这位博主的分析：
 
-![](image/AnimatorPlayableOutput的后续数据处理.png)
+![](image/Subsequent%20data%20processing%20of%20AnimatorPlayableOutput.png)
 
 > [死板地介绍Unity动画系统设计](https://zhuanlan.zhihu.com/p/305825751)
 
@@ -802,7 +802,7 @@ Animator的高级使用估计得等到有IK或者更精细动画需求后，才�
 
 TimelinePlayable利用IntervalTree来管理RuntimeClip，UML类图如下：
 
-![](image/IntervalTree%20UML类图.png)
+![](image/IntervalTree%20UML%20class%20diagram.png)
 <center><font size=2 >IntervalTree UML类图</font></center>
 
 - m_Entries：记录所有 RuntimeClip 和其左右边界的List
@@ -920,7 +920,7 @@ private int Rebuild(int start, int end)
 
 最终结构如下图所示：
 
-![](image/IntervalTree内部结构示例.png)
+![](image/IntervalTree%20internal%20struacture%20example.png)
 <center><font size=2 >IntervalTree内部结构示例</font></center>
 
 ### RuntimeClip 结构
@@ -941,7 +941,7 @@ private int Rebuild(int start, int end)
 
 最终，TimelineClip 与 RuntimeClip结构如下：
 
-![](image/RuntimeClip内部结构.png)
+![](image/RuntimeClip%20internal%20structure.png)
 <center><font size=2 >TimelineClip 与 RuntimeClip结构</font></center>
 
 ### 运行时 IntervalTree
@@ -957,7 +957,7 @@ private int Rebuild(int start, int end)
 3. enable这一帧激活的clip（会执行Playable的Play()方法 ）
 4. 根据mixin/mixout curve设置此clip所在的mixer input weight权重  
 
-![](image/根据mixin%20or%20mixout%20curve设置权重.png)
+![](image/set%20weight%20by%20mixin%20curve.png)
 
 ## PlayableGraph 的生命周期
 
@@ -1142,7 +1142,7 @@ class TimelineTestForLifeCycleEditor : Editor
 
 点击 “CreateGraph” 后的 graph 结构（图中标注的是节点设置的play state和连接权重）：
 
-![](image/生命周期验证示例的graph图.png)
+![](image/Example%20of%20the%20graph%20for%20lifecycle%20validation.png)
 <center><font size=2 >生命周期验证示例的graph图</font></center>
 
 当前脚本主要测试graph的 create与play（除了prepareFrame、processFrame），验证：
@@ -1153,7 +1153,7 @@ class TimelineTestForLifeCycleEditor : Editor
 - PrepareFrame、ProcessFrame顺序
 - Graph destroy执行效果
 
-![](image/脚本添加edior效果.png)
+![](image/Add%20the%20Editor%20to%20the%20script.png)
 打印结果：
 ``` csharp
 // 打印
@@ -1243,7 +1243,7 @@ Playable by in/output cnt_81 Behaviour:OnPlayableDestroy
 ```
 
 完整生命周期：
-![](image/完整生命周期.png)
+![](image/Complete%20life%20cycle.png)
 
 # 总结
 
@@ -1255,7 +1255,7 @@ Timeline和Playable系统，本文还是花了不少精力的：
 
 核心都在下面这张图中，再回顾下：
 
-![](image/Timeline%20结构全解.png)
+![](image/Timeline%20Structure%20Comprehensive%20Explanation.png)
 
 吃透了本文，自定义Track就是易如反掌了。
 
